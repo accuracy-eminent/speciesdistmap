@@ -58,12 +58,22 @@ get_clim_data <- function(res=10){
 
 # Load in the data 
 clim_data <- get_clim_data() %>% round_lat_lon((1/60)*10)
-occ_data <- get_species_occ("Populus deltoides", limit=100) %>% round_lat_lon((1/60)*10)
-merge_out <- merge(clim_data, occ_data, by=c("lat_round","lon_round"),all=FALSE)
+# Convert to Z scores
+bio_vars <- clim_data %>% select(starts_with("bio_")) %>% colnames()
+for(bio_var in bio_vars){
+  clim_data[sprintf('%s_%s',bio_var,'z')] <- scale(clim_data[bio_var], center=TRUE, scale=TRUE)
+}
+# Combine data
+occ_data <- get_species_occ("Populus deltoides", limit=1000) %>% round_lat_lon((1/60)*10)
+merge_out <- merge(clim_data, occ_data, by=c("lat_round","lon_round"),all=FALSE) %>%
+  #select(!matches("bio_[0-9]+_z$"))
+  select(!matches("bio_[0-9]+$"))
+# Regex to keep only Z-score columns
+
 
 # Choose a specific location to compare against
 loc_coords = c(42.717, -84.593)
-loc_coords = c(-6.378, -57.667)
+#loc_coords = c(-6.378, -57.667)
 loc_data <- clim_data %>% 
   filter(lat_round==round_any(loc_coords[1], (1/60)*10), lon_round==round_any(loc_coords[2],(1/60)*10)) %>%
   head(1)
