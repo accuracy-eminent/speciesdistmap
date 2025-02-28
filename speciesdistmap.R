@@ -64,16 +64,17 @@ for(bio_var in bio_vars){
   clim_data[sprintf('%s_%s',bio_var,'z')] <- scale(clim_data[bio_var], center=TRUE, scale=TRUE)
 }
 # Combine data
-occ_data <- get_species_occ("Populus deltoides", limit=1000) %>% round_lat_lon((1/60)*10)
-merge_out <- merge(clim_data, occ_data, by=c("lat_round","lon_round"),all=FALSE) %>%
-  #select(!matches("bio_[0-9]+_z$"))
-  select(!matches("bio_[0-9]+$"))
-# Regex to keep only Z-score columns
+species <- "Carnegeia gigantea"
+species <- "Populus deltoides"
+species <- "Quercus mongolica"
+occ_data <- get_species_occ(species, limit=1000) %>% round_lat_lon((1/60)*10)
+merge_out <- merge(clim_data, occ_data, by=c("lat_round","lon_round"),all=FALSE)
 
 
 # Choose a specific location to compare against
 loc_coords = c(42.717, -84.593)
-#loc_coords = c(-6.378, -57.667)
+loc_coords = c(-6.378, -57.667)
+#loc_coords = c(43.000, -99.995)
 loc_data <- clim_data %>% 
   filter(lat_round==round_any(loc_coords[1], (1/60)*10), lon_round==round_any(loc_coords[2],(1/60)*10)) %>%
   head(1)
@@ -87,7 +88,13 @@ combined_data <- merge_out %>%
 
 
 # Plot a box plot
-ggplot(combined_data) +
-  geom_boxplot(aes(x=name,y=value), outlier.shape=NA) +
+ggplot(combined_data %>% filter(grepl("bio_[0-9]+_z$",name))) +
+  geom_boxplot(aes(x=name,y=value)) +
   geom_point(aes(x=name, y=loc_value),color='red',shape='x') +
   theme_bw()
+
+# Calculate Z score of location compared to bioclimatic variable
+# Mean annual temperature
+print((loc_data$bio_1_z - mean(merge_out$bio_1_z)) / sd(merge_out$bio_1_z))
+# Mean annual preciptitation
+print((loc_data$bio_12_z - mean(merge_out$bio_12_z)) / sd(merge_out$bio_12_z))
