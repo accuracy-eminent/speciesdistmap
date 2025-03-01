@@ -65,7 +65,7 @@ clim_and_species <- function(clim_data, species){
   }
   occ_data <- get_species_occ(species, limit=1000) %>% round_lat_lon((1/60)*10)
   merge_out <- merge(clim_data, occ_data, by=c("lat_round","lon_round"),all=FALSE)
-  return(merge_out)
+  return(tibble(merge_out))
 }
 
 
