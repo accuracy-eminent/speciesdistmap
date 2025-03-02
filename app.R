@@ -30,7 +30,8 @@ server <- function(input, output, session){
       mutate(species_mean=mean(clim_species_data[[name]])) %>%
       mutate(species_sd=sd(clim_species_data[[name]])) %>%
       ungroup() %>%
-      mutate(z=(value - species_mean)/species_sd)
+      mutate(z=(value - species_mean)/species_sd) %>%
+      select(name, value, species_mean, species_sd, z)
     output$table <- renderTable(suitability_df, striped=TRUE)
   }
   p <- observeEvent(input$calc, {create_map()}, ignoreNULL = FALSE)
