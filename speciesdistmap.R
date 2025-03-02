@@ -63,7 +63,7 @@ clim_and_species <- function(clim_data, species){
   for(bio_var in bio_vars){
     clim_data[sprintf('%s_%s',bio_var,'z')] <- scale(clim_data[bio_var], center=TRUE, scale=TRUE)
   }
-  occ_data <- get_species_occ(species, limit=1000) %>% round_lat_lon((1/60)*10)
+  occ_data <- get_species_occ(species, limit=1000) %>% round_lat_lon(0.1667)
   merge_out <- merge(clim_data, occ_data, by=c("lat_round","lon_round"),all=FALSE)
   return(tibble(merge_out))
 }
@@ -73,7 +73,7 @@ clim_and_species <- function(clim_data, species){
 
 example_func <- function(){
 # Load in the data 
-clim_data <- get_clim_data() %>% round_lat_lon((1/60)*10)
+clim_data <- get_clim_data() %>% round_lat_lon(0.1667)
 # Convert to Z scores
 bio_vars <- clim_data %>% select(starts_with("bio_")) %>% colnames()
 for(bio_var in bio_vars){
@@ -84,7 +84,7 @@ species <- "Carnegeia gigantea"
 species <- "Populus deltoides"
 species <- "Alligator mississippiensis"
 species <- "Schizachyrium scoparium"
-occ_data <- get_species_occ(species, limit=1000) %>% round_lat_lon((1/60)*10)
+occ_data <- get_species_occ(species, limit=1000) %>% round_lat_lon(0.1667)
 merge_out <- merge(clim_data, occ_data, by=c("lat_round","lon_round"),all=FALSE)
 
 
@@ -93,7 +93,7 @@ loc_coords <- c(42.717, -84.593)
 #loc_coords <- c(-6.378, -57.667)
 #loc_coords = c(43.000, -99.995)
 loc_data <- clim_data %>% 
-  filter(lat_round==round_any(loc_coords[1], (1/60)*10), lon_round==round_any(loc_coords[2],(1/60)*10)) %>%
+  filter(lat_round==round_any(loc_coords[1],  0.1667), lon_round==round_any(loc_coords[2],0.1667)) %>%
   head(1)
 
 # Combine the data together
@@ -119,4 +119,4 @@ print((loc_data$bio_12_z - mean(merge_out$bio_12_z)) / sd(merge_out$bio_12_z))
 print((loc_data$bio_20_z - mean(merge_out$bio_20_z)) / sd(merge_out$bio_20_z))
 }
 
-clim_data <- get_clim_data() %>% round_lat_lon((1/60)*10)
+clim_data <- get_clim_data() %>% round_lat_lon(0.1667)

@@ -19,8 +19,8 @@ server <- function(input, output, session){
     clim_species_data <- clim_and_species(clim_data, input$species_name)
     loc_data <- clim_data %>% 
       filter(
-        lat_round==round_any(input$lat, (1/60)*10), 
-        lon_round==round_any(input$lon,(1/60)*10)) %>%
+        lat_round==round_any(input$lat,  0.1667), 
+        lon_round==round_any(input$lon, 0.1667)) %>%
       head(1) %>%
       tibble()
     # Calculate the Z scores for all bioclimatic variables at the location
