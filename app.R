@@ -9,7 +9,8 @@ ui <- fluidPage(
   numericInput("lat","Location latitude", 35.00, min=-90, max=90),
   numericInput("lon","Location longitude", -80.00, min=-180, max=180),
   actionButton("calc","Calculate distribution"),
-  textOutput("suitability"),
+  textOutput("mean_suitability"),
+  textOutput("max_suitability"),
   tableOutput("table"),
   plotOutput("plot")
 )
@@ -36,7 +37,8 @@ server <- function(input, output, session){
       rename(var_name=name, loc_value=value, z_score=z)
     output$table <- renderTable(suitability_df, striped=TRUE)
     # Show suitability summary
-    output$suitability <- renderText(sprintf("Mean absolute suitability: %s", mean(abs(suitability_df$z_score))))
+    output$mean_suitability <- renderText(sprintf("Mean absolute suitability deviation: %.2f", mean(abs(suitability_df$z_score))))
+    output$max_suitability <- renderText(sprintf("Maximum absolute suitability deviation: %.2f",  mean(max(suitability_df$z_score))))
   }
   p <- observeEvent(input$calc, {create_map()}, ignoreNULL = FALSE)
 }
