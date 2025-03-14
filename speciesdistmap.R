@@ -51,7 +51,7 @@ get_clim_data <- function(res=10){
   colnames(raster_df) <- gsub('y','lat', colnames(raster_df), fixed=TRUE)
   # Add additional variables
   # De Martonne aridity index
-  raster_df <- raster_df %>% mutate(bio_20 = clamp(bio_12 / (max(bio_1, -10) + 10), 0, 187))
+  raster_df <- raster_df %>% mutate(bio_20 = clamp(bio_12 / (bio_1 + 10), 0, 187))
   return(raster_df)
 }
 # raster_path_folder = tempdir()
