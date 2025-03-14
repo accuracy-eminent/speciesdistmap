@@ -11,6 +11,7 @@ ui <- fluidPage(
   actionButton("calc","Calculate distribution"),
   textOutput("mean_suitability"),
   textOutput("max_suitability"),
+  textOutput("weighted_suitability"),
   tableOutput("table"),
   plotOutput("plot")
 )
@@ -44,6 +45,8 @@ server <- function(input, output, session){
     # Show suitability summary
     output$mean_suitability <- renderText(sprintf("Mean absolute suitability deviation: %.2f", mean(abs(suitability_df$z_score))))
     output$max_suitability <- renderText(sprintf("Maximum absolute suitability deviation: %.2f",  mean(max(suitability_df$z_score))))
+    weighted_suitability <- (suitability_df %>% mutate(z_abs=abs(z_score)) %>% summarize(result=weighted.mean(z_abs, w=var_importance)))$result
+    output$weighted_suitability <- renderText(sprintf("Weighted mean absolute suitability deviation: %.2f", weighted_suitability))
   }
   p <- observeEvent(input$calc, {create_map()}, ignoreNULL = FALSE)
 }
