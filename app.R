@@ -19,6 +19,7 @@ server <- function(input, output, session){
   create_map <- function(){
     # Get species distribution data and location data
     clim_species_data <- clim_and_species(clim_data, input$species_name)
+    clim_data_sample <- clim_data %>% sample_n(100)
     loc_data <- clim_data %>% 
       filter(
         lat_round==round_any(input$lat,  0.1667), 
@@ -27,13 +28,17 @@ server <- function(input, output, session){
       tibble()
     # Calculate the Z scores for all bioclimatic variables at the location
     suitability_df <- loc_data %>%
+      select(!matches(".*z$")) %>%
       pivot_longer(cols = starts_with("bio")) %>%
       rowwise() %>%
       mutate(species_mean=mean(clim_species_data[[name]])) %>%
       mutate(species_sd=sd(clim_species_data[[name]])) %>%
+      mutate(world_mean=mean(clim_data_sample[[name]])) %>%
+      mutate(world_sd=sd(clim_data_sample[[name]])) %>%
+      mutate(var_importance=world_sd/species_sd) %>%
       ungroup() %>%
       mutate(z=(value - species_mean)/species_sd) %>%
-      select(name, value, species_mean, species_sd, z) %>%
+      select(name, value, species_mean, species_sd, world_mean, world_sd, var_importance, z) %>%
       rename(var_name=name, loc_value=value, z_score=z)
     output$table <- renderTable(suitability_df, striped=TRUE)
     # Show suitability summary
