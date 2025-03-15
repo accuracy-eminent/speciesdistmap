@@ -32,6 +32,8 @@ server <- function(input, output, session){
       select(!matches(".*z$")) %>%
       pivot_longer(cols = starts_with("bio")) %>%
       rowwise() %>%
+      mutate(species_min=min(clim_species_data[[name]])) %>%
+      mutate(species_max=max(clim_species_data[[name]])) %>%
       mutate(species_mean=mean(clim_species_data[[name]])) %>%
       mutate(species_sd=sd(clim_species_data[[name]])) %>%
       mutate(world_mean=mean(clim_data_sample[[name]])) %>%
@@ -39,7 +41,7 @@ server <- function(input, output, session){
       mutate(var_importance=world_sd/species_sd) %>%
       ungroup() %>%
       mutate(z=(value - species_mean)/species_sd) %>%
-      select(name, value, species_mean, species_sd, world_mean, world_sd, var_importance, z) %>%
+      select(name, value, species_min, species_max, species_mean, species_sd, world_mean, world_sd, var_importance, z) %>%
       rename(var_name=name, loc_value=value, z_score=z)
     output$table <- renderTable(suitability_df, striped=TRUE)
     # Show suitability summary
