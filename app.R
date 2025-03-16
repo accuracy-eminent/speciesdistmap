@@ -12,6 +12,7 @@ ui <- fluidPage(
   textOutput("mean_suitability"),
   textOutput("max_suitability"),
   textOutput("weighted_suitability"),
+  textOutput("vars_in_range"),
   tableOutput("table"),
   plotOutput("plot")
 )
@@ -39,9 +40,10 @@ server <- function(input, output, session){
       mutate(world_mean=mean(clim_data_sample[[name]])) %>%
       mutate(world_sd=sd(clim_data_sample[[name]])) %>%
       mutate(var_importance=world_sd/species_sd) %>%
+      mutate(in_min_max_range=(value >= species_min && value <= species_max)) %>%
       ungroup() %>%
       mutate(z=(value - species_mean)/species_sd) %>%
-      select(name, value, species_min, species_max, species_mean, species_sd, world_mean, world_sd, var_importance, z) %>%
+      select(name, value, species_min, species_max, species_mean, species_sd, world_mean, world_sd, var_importance, z, in_min_max_range) %>%
       rename(var_name=name, loc_value=value, z_score=z)
     output$table <- renderTable(suitability_df, striped=TRUE)
     # Show suitability summary
@@ -54,6 +56,9 @@ server <- function(input, output, session){
     weight_s_z <- (suitability_df %>% mutate(z_abs=abs(z_score)) %>% summarize(result=weighted.mean(z_abs, w=var_importance)))$result
     weight_s_p <- pnorm(weight_s_z, lower.tail=FALSE)
     output$weighted_suitability <- renderText(sprintf("Weighted mean absolute suitability deviation: %.2f, %%ile: %.2f%%", weight_s_z, weight_s_p*100))
+    vars_in_range <- suitability_df %>% filter(in_min_max_range == TRUE) %>% nrow()
+    total_vars <- suitability_df %>% nrow()
+    output$vars_in_range <- renderText(sprintf("Number of variables in species range: %d of %d", vars_in_range, total_vars))
   }
   p <- observeEvent(input$calc, {create_map()}, ignoreNULL = FALSE)
 }
