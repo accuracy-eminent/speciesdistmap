@@ -52,6 +52,9 @@ server <- function(input, output, session){
       select(name, value, species_min, species_max, species_mean, species_sd, world_mean, world_sd, var_importance, z, in_min_max_range) %>%
       rename(var_name=name, loc_value=value, z_score=z)
     output$table <- renderTable(suitability_df, striped=TRUE)
+    # Show suitability map
+    suitability_map <- calc_suitability_map(clim_data, suitability_df)
+    output$plot <- renderPlot(plot(suitability_map))
     # Show suitability summary
     # Z-scores
     mean_s_z <- mean(abs(suitability_df$z_score))

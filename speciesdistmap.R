@@ -68,6 +68,32 @@ clim_and_species <- function(clim_data, species){
   return(tibble(merge_out))
 }
 
+calc_suitability_map <- function(clim_data, suitability_df){
+  suitability_map_df <- clim_data %>% mutate(score=0)
+  bio_vars <- clim_data %>% select(starts_with("bio_")) %>% colnames()
+  for(bio_var in bio_vars){
+    s_mean <- suitability_df %>% filter(var_name == bio_var) %>% head(1) %>% pull(species_mean)
+    s_stdev <- suitability_df %>% filter(var_name == bio_var) %>% head(1) %>% pull(species_mean)
+    suitability_map_df[sprintf('%s_sz',bio_var)] <- (clim_data[bio_var] - s_mean)/s_stdev
+  }
+  suitability_map_df <- suitability_map_df %>%
+    mutate(score = 1/pmax(
+      abs(bio_1_sz), abs(bio_2_sz), abs(bio_3_sz), 
+      abs(bio_4_sz), abs(bio_5_sz), abs(bio_6_sz),
+      abs(bio_7_sz), abs(bio_8_sz), abs(bio_9_sz),
+      abs(bio_10_sz), abs(bio_11_sz), abs(bio_12_sz),
+      abs(bio_13_sz), abs(bio_14_sz), abs(bio_15_sz),
+      abs(bio_16_sz), abs(bio_17_sz), abs(bio_18_sz),
+      abs(bio_19_sz), abs(bio_20_sz)
+    ))
+  
+  # Convert to raster
+  points <- vect(suitability_map_df, geom=c("lon","lat"))
+  r <- rast(res=1/6, ext=ext(-180, 180, -90, 90), crs="EPSG:4326")
+  rasterized <- rasterize(points, r, field="score")
+  return(rasterized)
+}
+
 
 # Example
 
