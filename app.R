@@ -1,4 +1,5 @@
 library(shiny)
+library(leaflet)
 
 source('speciesdistmap.R')
 
@@ -17,8 +18,8 @@ ui <- fluidPage(
   textOutput("vars_out_2d"),
   textOutput("vars_out_3d"),
   textOutput("vars_out_min_max"),
+  leafletOutput("leaflet_map"),
   tableOutput("table"),
-  plotOutput("plot")
 )
 
 
@@ -54,7 +55,15 @@ server <- function(input, output, session){
     output$table <- renderTable(suitability_df, striped=TRUE)
     # Show suitability map
     suitability_map <- calc_suitability_map(clim_data, suitability_df)
-    output$plot <- renderPlot(plot(suitability_map))
+    r <- crop(suitability_map, ext(-180, 180, -89.5, 89.5))
+    pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(r),
+                        na.color = "transparent")
+    output$leaflet_map <- renderLeaflet({
+      leaflet() %>%
+        addTiles() %>%
+        addRasterImage(r, colors=pal, opacity=0.8) %>%
+        addLegend(pal=pal, values=values(r), title="Suitability")
+    })
     # Show suitability summary
     # Z-scores
     mean_s_z <- mean(abs(suitability_df$z_score))
