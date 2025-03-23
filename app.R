@@ -30,7 +30,7 @@ ui <- fluidPage(
   textInput("species_name","Species name","Taraxacum officinale"),
   numericInput("lat","Location latitude", 35.00, min=-90, max=90),
   numericInput("lon","Location longitude", -80.00, min=-180, max=180),
-  checkboxGroupInput("variables",'Variables to calculate distribution (descriptions from <a href="https://www.worldclim.org/data/bioclim.html">WorldClim</a>)',
+  checkboxGroupInput("variables",HTML('Variables to calculate distribution (descriptions and climate data from <a href="https://www.worldclim.org/data/bioclim.html">WorldClim</a>)'),
                      choices=selections,
                      selected=selections, width='100%'),
   actionButton("calc","Calculate distribution"),
@@ -88,7 +88,7 @@ server <- function(input, output, session){
       leaflet() %>%
         addTiles() %>%
         addRasterImage(r, colors=pal, opacity=0.8) %>%
-        addLegend(pal=pal, values=values(r), title="Suitability")
+        addLegend(pal=pal, values=values(r), title="Suitability (1/[max Z-score])")
     })
     # Show suitability summary
     # Z-scores
