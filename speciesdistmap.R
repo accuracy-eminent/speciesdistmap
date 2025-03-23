@@ -71,6 +71,9 @@ clim_and_species <- function(clim_data, species){
 calc_suitability_map <- function(clim_data, suitability_df){
   suitability_map_df <- clim_data %>% mutate(score=0)
   bio_vars <- clim_data %>% select(starts_with("bio_")) %>% colnames()
+  for(i in 1:20){
+    suitability_map_df[sprintf('bio_%d_sz',i)] = 0
+  }
   for(bio_var in bio_vars){
     s_mean <- suitability_df %>% filter(var_name == bio_var) %>% head(1) %>% pull(species_mean)
     s_stdev <- suitability_df %>% filter(var_name == bio_var) %>% head(1) %>% pull(species_sd)

@@ -3,12 +3,22 @@ library(leaflet)
 
 source('speciesdistmap.R')
 
+selections <- c("bio_1"="bio_1","bio_2"="bio_2", "bio_3"="bio_3", 
+  "bio_4"="bio_4","bio_5"="bio_5", "bio_6"="bio_6",
+  "bio_7"="bio_7","bio_8"="bio_8","bio_9"="bio_9",
+  "bio_10"="bio_10","bio_11"="bio_11","bio_12"="bio_12",
+  "bio_13"="bio_13","bio_14"="bio_14","bio_15"="bio_15",
+  "bio_16"="bio_16","bio_17"="bio_17","bio_18"="bio_18",
+  "bio_19"="bio_19","bio_20"="bio_20")
 ui <- fluidPage(
   p(),
   titlePanel("Species Distribution Model"),
   textInput("species_name","Species name","Taraxacum officinale"),
   numericInput("lat","Location latitude", 35.00, min=-90, max=90),
   numericInput("lon","Location longitude", -80.00, min=-180, max=180),
+  checkboxGroupInput("variables","Variables to calculate distribution",
+                     choices=selections,
+                     selected=selections, width='100%'),
   actionButton("calc","Calculate distribution"),
   textOutput("mean_suitability"),
   textOutput("max_suitability"),
@@ -27,9 +37,10 @@ server <- function(input, output, session){
   create_map <- function(){
     output$line_break <- renderText("<br>")
     # Get species distribution data and location data
-    clim_species_data <- clim_and_species(clim_data, input$species_name)
-    clim_data_sample <- clim_data %>% sample_n(100)
-    loc_data <- clim_data %>% 
+    clim_data_filtered <- clim_data %>% select(c("lon","lat", input$variables, "lat_round","lon_round"))
+    clim_species_data <- clim_and_species(clim_data_filtered, input$species_name)
+    clim_data_sample <- clim_data_filtered %>% sample_n(100)
+    loc_data <- clim_data_filtered %>% 
       filter(
         lat_round==round_any(input$lat,  0.1667), 
         lon_round==round_any(input$lon, 0.1667)) %>%
@@ -54,7 +65,7 @@ server <- function(input, output, session){
       rename(var_name=name, loc_value=value, z_score=z)
     output$table <- renderTable(suitability_df, striped=TRUE)
     # Show suitability map
-    suitability_map <- calc_suitability_map(clim_data, suitability_df)
+    suitability_map <- calc_suitability_map(clim_data_filtered, suitability_df)
     r <- crop(suitability_map, ext(-180, 180, -89.5, 89.5))
     pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(r),
                         na.color = "transparent")
