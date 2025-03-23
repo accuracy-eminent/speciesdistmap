@@ -3,20 +3,34 @@ library(leaflet)
 
 source('speciesdistmap.R')
 
-selections <- c("bio_1"="bio_1","bio_2"="bio_2", "bio_3"="bio_3", 
-  "bio_4"="bio_4","bio_5"="bio_5", "bio_6"="bio_6",
-  "bio_7"="bio_7","bio_8"="bio_8","bio_9"="bio_9",
-  "bio_10"="bio_10","bio_11"="bio_11","bio_12"="bio_12",
-  "bio_13"="bio_13","bio_14"="bio_14","bio_15"="bio_15",
-  "bio_16"="bio_16","bio_17"="bio_17","bio_18"="bio_18",
-  "bio_19"="bio_19","bio_20"="bio_20")
+selections <- c(
+  "BIO1: Mean annual temperature"="bio_1",
+  "BIO2: Mean Diurnal Range (Mean of monthly (max temp - min temp))"="bio_2", 
+  "BIO3: Isothermality (BIO2/BIO7) (x100)"="bio_3", 
+  "BIO4: Temperature Seasonality (standard deviation x100)"="bio_4",
+  "BIO5: Max Temperature of Warmest Month"="bio_5", 
+  "BIO6: Min Temperature of Coldest Month"="bio_6",
+  "BIO7: Temperature Annual Range (BIO5-BIO6)"="bio_7",
+  "BIO8: Mean Temperature of Wettest Quarter"="bio_8",
+  "BIO9: Mean Temperature of Driest Quarter"="bio_9",
+  "BIO10: Mean Temperature of Warmest Quarter"="bio_10",
+  "BIO11: Mean Temperature of Coldest Quarter"="bio_11",
+  "BIO12: Annual Precipitation"="bio_12",
+  "BIO13: Precipitation of Wettest Month"="bio_13",
+  "BIO14: Precipitation of Driest Month"="bio_14",
+  "BIO15: Precipitation Seasonality (Coefficient of Variation)"="bio_15",
+  "BIO16: Precipitation of Wettest Quarter"="bio_16",
+  "BIO17: Precipitation of Driest Quarter"="bio_17",
+  "BIO18: Precipitation of Warmest Quarter"="bio_18",
+  "BIO19: Precipitation of Coldest Quarter"="bio_19",
+  "BIO20: De Martonne Aridity Index (BIO12/(BIO1+10))"="bio_20")
 ui <- fluidPage(
   p(),
   titlePanel("Species Distribution Model"),
   textInput("species_name","Species name","Taraxacum officinale"),
   numericInput("lat","Location latitude", 35.00, min=-90, max=90),
   numericInput("lon","Location longitude", -80.00, min=-180, max=180),
-  checkboxGroupInput("variables","Variables to calculate distribution",
+  checkboxGroupInput("variables",'Variables to calculate distribution (descriptions from <a href="https://www.worldclim.org/data/bioclim.html">WorldClim</a>)',
                      choices=selections,
                      selected=selections, width='100%'),
   actionButton("calc","Calculate distribution"),
