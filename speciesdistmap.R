@@ -1,5 +1,5 @@
 library(pacman)
-pacman::p_load(rgbif, geodata, tidyverse)
+pacman::p_load(rgbif, geodata, tidyverse, viridis)
 
 # This was tested on R 4.4.2
 
@@ -90,7 +90,7 @@ calc_suitability_map <- function(clim_data, suitability_df){
   # Convert to raster
   points <- vect(suitability_map_df, geom=c("lon","lat"))
   r <- rast(res=1/6, ext=ext(-180, 180, -90, 90), crs="EPSG:4326")
-  rasterized <- rasterize(points, r, field="score")
+  rasterized <- clamp(rasterize(points, r, field="score"), -Inf, 10)
   return(rasterized)
 }
 

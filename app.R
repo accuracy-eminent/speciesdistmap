@@ -58,7 +58,7 @@ server <- function(input, output, session){
     r <- crop(suitability_map, ext(-180, 180, -89.5, 89.5))
     pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(r),
                         na.color = "transparent")
-    pal <- colorBin(c("red","yellow","green","blue","lightblue"), bins=c(0.25, 0.33, 0.5, 0.75), na.color="transparent")
+    pal <- colorBin(viridis(6), bins=c(0.25, 0.33, 0.5, 0.75, 10.0), na.color="transparent")
     output$leaflet_map <- renderLeaflet({
       leaflet() %>%
         addTiles() %>%
