@@ -12,6 +12,8 @@ and a selection of variables to use in the model, and the app will produce suita
 for the location, a world suitability map for the species, and a table of climatic variable 
 statistics for the location and the distribution of the species.
 
+![Example](images/screenshot.png)
+
 ## About
 
 The species distribution model involves calculating the mean and standard deviation for
