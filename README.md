@@ -21,4 +21,4 @@ each bioclimatic variable (data from [WorldClim](https://www.worldclim.org/)) at
 species occurrence (data from [GBIF](https://www.gbif.org/)) 
 to get the species niche, calculating the Z-score for each bioclimatic variable
 based on these statistics for each grid on the world map, and suitability for each grid square 
-is calculated as the maximum absolute Z-score relative to the species niche.
+is calculated as the maximum absolute Z-score (i.e. the most limiting variable) relative to the species niche.
