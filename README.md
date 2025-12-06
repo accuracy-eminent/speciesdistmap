@@ -1,6 +1,6 @@
 # speciesdistmap
 
-Mapping and modeling species distributions by determining a distribution of climatic conditions a species can live in from observatoin data from iNaturalist.
+Mapping and modeling species distributions using a presence-only model to map a suitable "window" of climatic conditions for the species based on the most limiting climatic factor.
 
 ## Requirements
 
