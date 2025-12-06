@@ -34,9 +34,9 @@ get_species_occ <- function(scientific_name, limit=1000){
   #' # Get 5000 observations of Populus deltoides and save to a data frame
   #' df <- get_species_occ("Populus deltoides", limit=5000)
   
-
+  occ <- occ_search(scientificName = scientific_name, hasCoordinate = TRUE, limit = limit)$data
   
-  df <- occ_search(scientificName = scientific_name, hasCoordinate = TRUE, limit = limit)$data %>%
+  df <- occ %>%
     as_tibble() %>%
     dplyr::select(key, scientificName, decimalLatitude, decimalLongitude) %>%
     rename(lat=decimalLatitude, lon=decimalLongitude)
@@ -98,54 +98,3 @@ calc_suitability_map <- function(clim_data, suitability_df){
 }
 
 
-# Example
-
-example_func <- function(){
-# Load in the data 
-clim_data <- get_clim_data() %>% round_lat_lon(0.1667)
-# Convert to Z scores
-bio_vars <- clim_data %>% select(starts_with("bio_")) %>% colnames()
-for(bio_var in bio_vars){
-  clim_data[sprintf('%s_%s',bio_var,'z')] <- scale(clim_data[bio_var], center=TRUE, scale=TRUE)
-}
-# Combine data
-species <- "Carnegeia gigantea"
-species <- "Populus deltoides"
-species <- "Alligator mississippiensis"
-species <- "Schizachyrium scoparium"
-occ_data <- get_species_occ(species, limit=1000) %>% round_lat_lon(0.1667)
-merge_out <- merge(clim_data, occ_data, by=c("lat_round","lon_round"),all=FALSE)
-
-
-# Choose a specific location to compare against
-loc_coords <- c(42.717, -84.593)
-#loc_coords <- c(-6.378, -57.667)
-#loc_coords = c(43.000, -99.995)
-loc_data <- clim_data %>% 
-  filter(lat_round==round_any(loc_coords[1],  0.1667), lon_round==round_any(loc_coords[2],0.1667)) %>%
-  head(1)
-
-# Combine the data together
-combined_data <- merge_out %>% 
-  pivot_longer(cols=starts_with("bio_")) %>% 
-  rowwise() %>% 
-  mutate(loc_value=loc_data[[name]]) %>% 
-  ungroup()
-
-
-# Plot a box plot
-ggplot(combined_data %>% filter(grepl("bio_[0-9]+_z$",name))) +
-  geom_boxplot(aes(x=name,y=value)) +
-  geom_point(aes(x=name, y=loc_value),color='red',shape='x') +
-  theme_bw()
-
-# Calculate Z score of location compared to bioclimatic variable
-# Mean annual temperature
-print((loc_data$bio_1_z - mean(merge_out$bio_1_z)) / sd(merge_out$bio_1_z))
-# Mean annual preciptitation
-print((loc_data$bio_12_z - mean(merge_out$bio_12_z)) / sd(merge_out$bio_12_z))
-# Aridity index
-print((loc_data$bio_20_z - mean(merge_out$bio_20_z)) / sd(merge_out$bio_20_z))
-}
-
-clim_data <- get_clim_data() %>% round_lat_lon(0.1667)

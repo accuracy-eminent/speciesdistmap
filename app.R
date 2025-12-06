@@ -1,5 +1,5 @@
-library(shiny)
-library(leaflet)
+library(pacman)
+pacman::p_load(shiny, leaflet)
 
 source('speciesdistmap.R')
 
@@ -27,6 +27,7 @@ selections <- c(
 ui <- fluidPage(
   p(),
   titlePanel("Species Distribution Model"),
+  h3("Modeling species distribution and determination if a specific location is within the species niche"),
   textInput("species_name","Species name","Taraxacum officinale"),
   numericInput("lat","Location latitude", 35.00, min=-90, max=90),
   numericInput("lon","Location longitude", -80.00, min=-180, max=180),
@@ -34,6 +35,11 @@ ui <- fluidPage(
                      choices=selections,
                      selected=selections, width='100%'),
   actionButton("calc","Calculate distribution"),
+  p(),
+  strong("Species distribution map:"),
+  leafletOutput("leaflet_map"),
+  p(),
+  strong("Species suitability at location:"),
   textOutput("mean_suitability"),
   textOutput("max_suitability"),
   textOutput("weighted_suitability"),
@@ -42,7 +48,6 @@ ui <- fluidPage(
   textOutput("vars_out_2d"),
   textOutput("vars_out_3d"),
   textOutput("vars_out_min_max"),
-  leafletOutput("leaflet_map"),
   tableOutput("table"),
 )
 
